@@ -1,17 +1,33 @@
+"""
+This workflow runs extended-period simulation of CTOWN network and plots pressure reads
+   for junction J193
+Dependencies: epanettools and matplot modules
+"""
+
 from epanettools import epanet2 as et
+from  epanettools.epanettools import EPANetSimulation
 import matplotlib.pyplot as plt
+import os
 
-file_directory =  r"C:\0 Amin\QNRF\Git\experiments\resources\CTOWN.inp"
+dir = os.path.abspath('testEPANETTOOLS.py')
+dir = '\\'.join(dir.split('\\')[0:-2])
+file_directory = dir + '\\resources\\CTOWN.inp'
 
-ret = et.ENopen(file_directory,"CTOWN.rpt","")
+ret = et.ENopen(file_directory, "CTOWN.rpt", "")
+es = EPANetSimulation(file_directory)
+n = es.network.nodes
+
+junction = 'J193'
+
 pres = []
 nodes = []
 time = []
+
 et.ENopenH()
 et.ENinitH(0)
 while True:
     ret, t = et.ENrunH()
-    ret, p = et.ENgetnodevalue(10, et.EN_PRESSURE)
+    ret, p = et.ENgetnodevalue(n[junction].index, et.EN_PRESSURE)
     print t, p
     ret, t_step = et.ENnextH()
     if t % 3600 == 0:
@@ -21,7 +37,7 @@ while True:
         break
 
 et.ENcloseH()
-print len(time), len(pres)
+
 plt.plot(time, pres)
 plt.grid()
 plt.xlabel('Time (hr)')
